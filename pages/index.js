@@ -5,6 +5,7 @@ const IndexPage = () => {
   return (
     <Page>
       <div className="index">
+        Index
         <style jsx>{`
           .index {
           }
