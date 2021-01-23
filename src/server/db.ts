@@ -1,10 +1,13 @@
-const MONGO_URL = process.env.MONGO_URL;
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
+const MONGO_URL = process.env.MONGO_URL as string;
+
 mongoose.set('useCreateIndex', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useUnifiedTopology', true);
 mongoose.set('useNewUrlParser', true);
+mongoose.set('autoIndex', true);
+
 const readyStates = {
   disconnected: 0,
   connected: 1,
@@ -12,7 +15,7 @@ const readyStates = {
   disconnecting: 3,
 };
 
-let pendingPromise;
+let pendingPromise: Promise<typeof mongoose> | null;
 
 const connectDB = async () => {
   const { readyState } = mongoose.connection;

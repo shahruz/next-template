@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Page = ({ children }) => {
+const MainLayout = ({ children }) => {
   return (
-    <div className="page">
+    <div className="main-layout">
       {children}
       <style jsx>{`
-        .page {
+        .main-layout {
         }
       `}</style>
       <style jsx global>{`
@@ -25,4 +25,4 @@ const Page = ({ children }) => {
   );
 };
 
-export default Page;
+export default MainLayout;
