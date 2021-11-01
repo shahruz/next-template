@@ -4,25 +4,27 @@ import dayjs from "dayjs";
 export const GRAPH_URL =
   "https://api.thegraph.com/subgraphs/name/internetcamera/gm-cam";
 
-enum GMState {
-  INITIATED = "INITIATED",
-  COMPLETED = "COMPLETED",
-}
+// TODO: pull these types from somewhere safe
 
-type Film = {
-  id: string;
-  expiresAt: string;
-};
+// enum GMState {
+//   INITIATED = "INITIATED",
+//   COMPLETED = "COMPLETED",
+// }
 
-type GM = {
-  id: string;
-  state: GMState;
-  expiresAt: string;
-  ipfsHash?: string;
-  sender: { id: string };
-  recipient: { id: string };
-  partner?: GM;
-};
+// type Film = {
+//   id: string;
+//   expiresAt: string;
+// };
+
+// type GM = {
+//   id: string;
+//   state: GMState;
+//   expiresAt: string;
+//   ipfsHash?: string;
+//   sender: { id: string };
+//   recipient: { id: string };
+//   partner?: GM;
+// };
 
 const GRAPH_QUERY_GMS = gql`
   query ExpiredGms($from: BigInt) {
