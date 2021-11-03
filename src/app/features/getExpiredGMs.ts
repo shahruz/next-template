@@ -28,7 +28,7 @@ export const GRAPH_URL =
 
 const GRAPH_QUERY_GMS = gql`
   query ExpiredGms($from: BigInt) {
-    gms(where: { expiresAt_lt: $from }) {
+    gms(where: { expiresAt_lt: $from, state: INITIATED }) {
       id
       expiresAt
     }
