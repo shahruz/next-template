@@ -7,7 +7,7 @@ export const OPENSEA_URL = isProd
 
 export const GM_CAM_CONTRACT_ADDRESS = isProd
   ? ""
-  : "0x1D07cCef68E10eE4D48687CAb7B96e16F7a2cc8f";
+  : "0x74dabb1b110401cad7293097924b348dad7c6629";
 
 export const FORWARDER_CONTRACT_ADDRESS = isProd
   ? ""
