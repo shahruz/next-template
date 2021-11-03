@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
 const IndexPage = () => {
   return (
     <div className="index">
-      Index
+      gm server
       <style jsx>{`
         .index {
         }
