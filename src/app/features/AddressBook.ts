@@ -1,6 +1,5 @@
-// import isProd from './isProd';
+import isProd from "./isProd";
 
-const isProd = true;
 // TODO: remove hard coding
 export const OPENSEA_URL = isProd
   ? "https://opensea.io/assets/matic/"
@@ -8,7 +7,7 @@ export const OPENSEA_URL = isProd
 
 export const GM_CAM_CONTRACT_ADDRESS = isProd
   ? ""
-  : "0xb8BaE5574317758ca80fFCF830C4C0Bb24193349";
+  : "0x1D07cCef68E10eE4D48687CAb7B96e16F7a2cc8f";
 
 export const FORWARDER_CONTRACT_ADDRESS = isProd
   ? ""
