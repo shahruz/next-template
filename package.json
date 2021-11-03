@@ -5,7 +5,9 @@
     "start": "next"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.5.0",
     "dayjs": "^1.10.7",
+    "ethers": "^5.5.1",
     "graphql": "^16.0.1",
     "graphql-request": "^3.6.1",
     "next": "^11.0.0",
