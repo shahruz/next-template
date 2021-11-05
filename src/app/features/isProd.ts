@@ -1,3 +1,3 @@
-const isProd = false;
+const isProd = true;
 
 export default isProd;
