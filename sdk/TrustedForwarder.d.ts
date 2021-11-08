@@ -21,9 +21,8 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface TrustedForwarderInterface extends ethers.utils.Interface {
   functions: {
-    "execute((address,address,uint256,uint256,uint256,bytes),bytes)": FunctionFragment;
-    "getNonce(address)": FunctionFragment;
-    "verify((address,address,uint256,uint256,uint256,bytes),bytes)": FunctionFragment;
+    "execute((address,address,uint256,uint256,bytes),bytes)": FunctionFragment;
+    "verify((address,address,uint256,uint256,bytes),bytes)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -34,13 +33,11 @@ interface TrustedForwarderInterface extends ethers.utils.Interface {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       BytesLike
     ]
   ): string;
-  encodeFunctionData(functionFragment: "getNonce", values: [string]): string;
   encodeFunctionData(
     functionFragment: "verify",
     values: [
@@ -49,7 +46,6 @@ interface TrustedForwarderInterface extends ethers.utils.Interface {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       BytesLike
@@ -57,7 +53,6 @@ interface TrustedForwarderInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getNonce", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "verify", data: BytesLike): Result;
 
   events: {};
@@ -113,14 +108,11 @@ export class TrustedForwarder extends BaseContract {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    getNonce(from: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     verify(
       req: {
@@ -128,7 +120,6 @@ export class TrustedForwarder extends BaseContract {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       signature: BytesLike,
@@ -142,14 +133,11 @@ export class TrustedForwarder extends BaseContract {
       to: string;
       value: BigNumberish;
       gas: BigNumberish;
-      nonce: BigNumberish;
       data: BytesLike;
     },
     signature: BytesLike,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  getNonce(from: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   verify(
     req: {
@@ -157,7 +145,6 @@ export class TrustedForwarder extends BaseContract {
       to: string;
       value: BigNumberish;
       gas: BigNumberish;
-      nonce: BigNumberish;
       data: BytesLike;
     },
     signature: BytesLike,
@@ -171,14 +158,11 @@ export class TrustedForwarder extends BaseContract {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean, string]>;
-
-    getNonce(from: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     verify(
       req: {
@@ -186,7 +170,6 @@ export class TrustedForwarder extends BaseContract {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       signature: BytesLike,
@@ -203,14 +186,11 @@ export class TrustedForwarder extends BaseContract {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    getNonce(from: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     verify(
       req: {
@@ -218,7 +198,6 @@ export class TrustedForwarder extends BaseContract {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       signature: BytesLike,
@@ -233,16 +212,10 @@ export class TrustedForwarder extends BaseContract {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       signature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getNonce(
-      from: string,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     verify(
@@ -251,7 +224,6 @@ export class TrustedForwarder extends BaseContract {
         to: string;
         value: BigNumberish;
         gas: BigNumberish;
-        nonce: BigNumberish;
         data: BytesLike;
       },
       signature: BytesLike,

@@ -21,9 +21,12 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface GmCamInterface extends ethers.utils.Interface {
   functions: {
+    "airdrop(address[])": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "burnExpired(uint256[])": FunctionFragment;
+    "burnUnsubscribed(uint256[],address)": FunctionFragment;
+    "deleteGM(uint256)": FunctionFragment;
     "filmBalances(address)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "gmData(uint256)": FunctionFragment;
@@ -38,6 +41,8 @@ interface GmCamInterface extends ethers.utils.Interface {
     "sendGMBack(uint256,string)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setForwarder(address)": FunctionFragment;
+    "setSubscriptionState(bool)": FunctionFragment;
+    "stopAirdrops()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
@@ -46,6 +51,7 @@ interface GmCamInterface extends ethers.utils.Interface {
     "versionRecipient()": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "airdrop", values: [string[]]): string;
   encodeFunctionData(
     functionFragment: "approve",
     values: [string, BigNumberish]
@@ -54,6 +60,14 @@ interface GmCamInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "burnExpired",
     values: [BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "burnUnsubscribed",
+    values: [BigNumberish[], string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "deleteGM",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "filmBalances",
@@ -106,6 +120,14 @@ interface GmCamInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "setSubscriptionState",
+    values: [boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "stopAirdrops",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
@@ -127,12 +149,18 @@ interface GmCamInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(functionFragment: "airdrop", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "burnExpired",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "burnUnsubscribed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "deleteGM", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "filmBalances",
     data: BytesLike
@@ -172,6 +200,14 @@ interface GmCamInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setSubscriptionState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "stopAirdrops",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
@@ -191,23 +227,29 @@ interface GmCamInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "AddressUnsubscribed(address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "FilmCreated(address,uint256,uint256)": EventFragment;
+    "GMBurned(uint256)": EventFragment;
     "GMCompleted(uint256,uint256)": EventFragment;
     "GMCreated(uint256,address,address,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AddressUnsubscribed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FilmCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GMBurned"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GMCompleted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GMCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
+
+export type AddressUnsubscribedEvent = TypedEvent<[string] & { addr: string }>;
 
 export type ApprovalEvent = TypedEvent<
   [string, string, BigNumber] & {
@@ -232,6 +274,8 @@ export type FilmCreatedEvent = TypedEvent<
     expiresAt: BigNumber;
   }
 >;
+
+export type GMBurnedEvent = TypedEvent<[BigNumber] & { tokenId: BigNumber }>;
 
 export type GMCompletedEvent = TypedEvent<
   [BigNumber, BigNumber] & { gm1TokenId: BigNumber; gm2TokenId: BigNumber }
@@ -298,6 +342,11 @@ export class GmCam extends BaseContract {
   interface: GmCamInterface;
 
   functions: {
+    airdrop(
+      addrs: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     approve(
       to: string,
       tokenId: BigNumberish,
@@ -308,6 +357,17 @@ export class GmCam extends BaseContract {
 
     burnExpired(
       tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    burnUnsubscribed(
+      tokenIds: BigNumberish[],
+      addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    deleteGM(
+      tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -394,6 +454,15 @@ export class GmCam extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setSubscriptionState(
+      subscribed: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    stopAirdrops(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -421,6 +490,11 @@ export class GmCam extends BaseContract {
     versionRecipient(overrides?: CallOverrides): Promise<[string]>;
   };
 
+  airdrop(
+    addrs: string[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   approve(
     to: string,
     tokenId: BigNumberish,
@@ -431,6 +505,17 @@ export class GmCam extends BaseContract {
 
   burnExpired(
     tokenIds: BigNumberish[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  burnUnsubscribed(
+    tokenIds: BigNumberish[],
+    addr: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  deleteGM(
+    tokenId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -514,6 +599,15 @@ export class GmCam extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setSubscriptionState(
+    subscribed: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  stopAirdrops(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   supportsInterface(
     interfaceId: BytesLike,
     overrides?: CallOverrides
@@ -538,6 +632,8 @@ export class GmCam extends BaseContract {
   versionRecipient(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    airdrop(addrs: string[], overrides?: CallOverrides): Promise<void>;
+
     approve(
       to: string,
       tokenId: BigNumberish,
@@ -550,6 +646,14 @@ export class GmCam extends BaseContract {
       tokenIds: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    burnUnsubscribed(
+      tokenIds: BigNumberish[],
+      addr: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    deleteGM(tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     filmBalances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -629,6 +733,13 @@ export class GmCam extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setSubscriptionState(
+      subscribed: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    stopAirdrops(overrides?: CallOverrides): Promise<void>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -654,6 +765,14 @@ export class GmCam extends BaseContract {
   };
 
   filters: {
+    "AddressUnsubscribed(address)"(
+      addr?: string | null
+    ): TypedEventFilter<[string], { addr: string }>;
+
+    AddressUnsubscribed(
+      addr?: string | null
+    ): TypedEventFilter<[string], { addr: string }>;
+
     "Approval(address,address,uint256)"(
       owner?: string | null,
       approved?: string | null,
@@ -707,6 +826,14 @@ export class GmCam extends BaseContract {
       [string, BigNumber, BigNumber],
       { player: string; tokenId: BigNumber; expiresAt: BigNumber }
     >;
+
+    "GMBurned(uint256)"(
+      tokenId?: BigNumberish | null
+    ): TypedEventFilter<[BigNumber], { tokenId: BigNumber }>;
+
+    GMBurned(
+      tokenId?: BigNumberish | null
+    ): TypedEventFilter<[BigNumber], { tokenId: BigNumber }>;
 
     "GMCompleted(uint256,uint256)"(
       gm1TokenId?: BigNumberish | null,
@@ -780,6 +907,11 @@ export class GmCam extends BaseContract {
   };
 
   estimateGas: {
+    airdrop(
+      addrs: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     approve(
       to: string,
       tokenId: BigNumberish,
@@ -790,6 +922,17 @@ export class GmCam extends BaseContract {
 
     burnExpired(
       tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    burnUnsubscribed(
+      tokenIds: BigNumberish[],
+      addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    deleteGM(
+      tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -865,6 +1008,15 @@ export class GmCam extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setSubscriptionState(
+      subscribed: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    stopAirdrops(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
@@ -893,6 +1045,11 @@ export class GmCam extends BaseContract {
   };
 
   populateTransaction: {
+    airdrop(
+      addrs: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     approve(
       to: string,
       tokenId: BigNumberish,
@@ -906,6 +1063,17 @@ export class GmCam extends BaseContract {
 
     burnExpired(
       tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    burnUnsubscribed(
+      tokenIds: BigNumberish[],
+      addr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    deleteGM(
+      tokenId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -984,6 +1152,15 @@ export class GmCam extends BaseContract {
 
     setForwarder(
       trustedForwarder_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSubscriptionState(
+      subscribed: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    stopAirdrops(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
