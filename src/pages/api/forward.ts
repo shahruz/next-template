@@ -3,6 +3,14 @@ import { TrustedForwarder__factory } from '../../../sdk/factories/TrustedForward
 import { utils, Wallet } from 'ethers';
 import { providers } from 'ethers';
 
+const PRIVATE_KEYS = [
+  process.env.FORWARDER_PRIVATE_KEY_1 as string,
+  process.env.FORWARDER_PRIVATE_KEY_2 as string,
+  process.env.FORWARDER_PRIVATE_KEY_3 as string,
+  process.env.FORWARDER_PRIVATE_KEY_4 as string,
+  process.env.FORWARDER_PRIVATE_KEY_5 as string
+];
+
 const api: NextApiHandler = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -22,8 +30,14 @@ const api: NextApiHandler = async (req, res) => {
       forwarderAddress: string;
       rpcUrl: string;
     } = req.body;
+
+    const privateKey =
+      PRIVATE_KEYS[
+        parseInt(data.message.from.slice(-2), 16) % PRIVATE_KEYS.length
+      ];
+
     const wallet = new Wallet(
-      process.env.FORWARDER_PRIVATE_KEY as string,
+      privateKey,
       new providers.JsonRpcProvider(rpcUrl)
     );
     const forwarder = TrustedForwarder__factory.connect(
