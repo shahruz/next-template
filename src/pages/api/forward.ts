@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next';
 import { TrustedForwarder__factory } from '../../../sdk/factories/TrustedForwarder__factory';
-import { Wallet } from 'ethers';
+import { utils, Wallet } from 'ethers';
 import { providers } from 'ethers';
 
 const api: NextApiHandler = async (req, res) => {
@@ -30,7 +30,10 @@ const api: NextApiHandler = async (req, res) => {
       forwarderAddress,
       wallet
     );
-    const tx = await forwarder.execute(data.message, signature);
+    const tx = await forwarder.execute(data.message, signature, {
+      gasPrice: utils.parseUnits('35', 'gwei')
+    });
+    console.log('tx hash', tx.hash);
     return res.json(tx);
   } else {
     res.send('');
