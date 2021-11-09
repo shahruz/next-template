@@ -1,11 +1,10 @@
 import React, { useEffect, useCallback } from "react";
 
 import { useWallet } from "@gimmixorg/use-wallet";
-import { ENSName, AddressDisplayEnum } from "react-ens-name";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 const ConnectWalletButton = () => {
-  const { connect, account, web3Modal, network } = useWallet();
+  const { connect, account, web3Modal } = useWallet();
 
   const providerOptions = {
     walletconnect: {
